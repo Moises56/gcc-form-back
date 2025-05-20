@@ -1,0 +1,29 @@
+BEGIN TRY
+
+BEGIN TRAN;
+
+-- CreateTable
+CREATE TABLE [dbo].[ImagenForm] (
+    [id] INT NOT NULL IDENTITY(1,1),
+    [url] NVARCHAR(1000) NOT NULL,
+    [descripcion] NVARCHAR(1000),
+    [datosFormId] INT NOT NULL,
+    [createdAt] DATETIME2 NOT NULL CONSTRAINT [ImagenForm_createdAt_df] DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT [ImagenForm_pkey] PRIMARY KEY CLUSTERED ([id])
+);
+
+-- AddForeignKey
+ALTER TABLE [dbo].[ImagenForm] ADD CONSTRAINT [ImagenForm_datosFormId_fkey] FOREIGN KEY ([datosFormId]) REFERENCES [dbo].[DatosForm]([id]) ON DELETE CASCADE ON UPDATE CASCADE;
+
+COMMIT TRAN;
+
+END TRY
+BEGIN CATCH
+
+IF @@TRANCOUNT > 0
+BEGIN
+    ROLLBACK TRAN;
+END;
+THROW
+
+END CATCH

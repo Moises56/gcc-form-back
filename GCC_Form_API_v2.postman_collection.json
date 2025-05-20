@@ -1,0 +1,719 @@
+{
+	"info": {
+		"_postman_id": "c5a52c50-ff4b-4a8c-9843-d5e7c7e2b4d7",
+		"name": "GCC Form API v2",
+		"description": "API para el sistema de gestión de permisos de construcción con nuevos endpoints para formularios y logs",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Autenticación",
+			"item": [
+				{
+					"name": "Registro de Usuario",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fullName\": \"Administrador\",\n    \"username\": \"admin\",\n    \"phoneNumber\": \"123456789\",\n    \"employeeNumber\": \"EMP001\",\n    \"email\": \"admin@example.com\",\n    \"password\": \"password123\",\n    \"role\": \"ADMIN\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						},
+						"description": "Crea un nuevo usuario en el sistema"
+					},
+					"response": []
+				},
+				{
+					"name": "Inicio de Sesión",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"usernameOrEmail\": \"admin@example.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/auth/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Inicia sesión y obtiene un token JWT"
+					},
+					"response": []
+				},
+				{
+					"name": "Perfil del Usuario",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3000/api/auth/me",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"auth",
+								"me"
+							]
+						},
+						"description": "Obtiene la información del usuario autenticado"
+					},
+					"response": []
+				},
+				{
+					"name": "Cerrar Sesión",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3000/api/auth/logout",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"auth",
+								"logout"
+							]
+						},
+						"description": "Cierra la sesión del usuario"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para la autenticación y gestión de usuarios"
+		},
+		{
+			"name": "Usuarios",
+			"item": [
+				{
+					"name": "Listar Usuarios",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3000/api/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"users"
+							]
+						},
+						"description": "Obtiene la lista de todos los usuarios (solo ADMIN)"
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Usuario por ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3000/api/users/{{userId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"users",
+								"{{userId}}"
+							]
+						},
+						"description": "Obtiene los detalles de un usuario específico"
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar Usuario",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fullName\": \"Nombre Actualizado\",\n    \"phoneNumber\": \"987654321\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/users/{{userId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"users",
+								"{{userId}}"
+							]
+						},
+						"description": "Actualiza la información de un usuario"
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar Usuario",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3000/api/users/{{userId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"users",
+								"{{userId}}"
+							]
+						},
+						"description": "Elimina un usuario del sistema"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para la gestión de usuarios"
+		},
+		{
+			"name": "Formularios de Datos",
+			"item": [
+				{
+					"name": "Crear Formulario",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"numeroNota\": \"60005\",\n    \"propietario\": \"Juan Pérez\",\n    \"direccionObra\": \"Calle Principal #123\",\n    \"sectorCatastral\": \"Zona Norte\",\n    \"fechaInspeccion\": \"2025-05-20T10:00:00Z\",\n    \"areaPrivada\": true,\n    \"sinLicenciaConstruccion\": true,\n    \"usoSueloHabitacional\": true,\n    \"areaEstimada\": 150,\n    \"niveles\": 2,\n    \"materiales\": \"Concreto y ladrillo\",\n    \"faseObra\": 60,\n    \"observaciones\": \"Se encontró construcción sin licencia\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/datos-form",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"datos-form"
+							]
+						},
+						"description": "Crea un nuevo formulario de inspección"
+					},
+					"response": []
+				},
+				{
+					"name": "Listar Formularios",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3000/api/datos-form",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"datos-form"
+							],
+							"query": [
+								{
+									"key": "propietario",
+									"value": "Juan",
+									"disabled": true
+								},
+								{
+									"key": "direccionObra",
+									"value": "Calle",
+									"disabled": true
+								},
+								{
+									"key": "numeroNota",
+									"value": "60005",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Obtiene una lista de todos los formularios"
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Formulario por ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3000/api/datos-form/{{formId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"datos-form",
+								"{{formId}}"
+							]
+						},
+						"description": "Obtiene los detalles de un formulario específico"
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar Formulario",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"propietario\": \"Juan Pérez López\",\n    \"observaciones\": \"Actualización: Se encontró construcción sin licencia en zona residencial\",\n    \"faseObra\": 75\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/datos-form/{{formId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"datos-form",
+								"{{formId}}"
+							]
+						},
+						"description": "Actualiza un formulario existente"
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar Formulario",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3000/api/datos-form/{{formId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"datos-form",
+								"{{formId}}"
+							]
+						},
+						"description": "Elimina un formulario (solo ADMIN y MODERADOR)"
+					},
+					"response": []
+				},
+				{
+					"name": "Listar Mis Formularios",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3000/api/datos-form/my-forms",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"datos-form",
+								"my-forms"
+							]
+						},
+						"description": "Obtiene los formularios del usuario autenticado"
+					},
+					"response": []
+				},
+				{
+					"name": "Listar Formularios por Usuario",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3000/api/datos-form/user/{{userId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"datos-form",
+								"user",
+								"{{userId}}"
+							]
+						},
+						"description": "Obtiene los formularios de un usuario específico"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para la gestión de formularios de inspección"
+		},
+		{
+			"name": "Logs del Sistema",
+			"item": [
+				{
+					"name": "Listar Logs",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3000/api/logs",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"logs"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{userId}}",
+									"disabled": true
+								},
+								{
+									"key": "entidad",
+									"value": "DatosForm",
+									"disabled": true
+								},
+								{
+									"key": "accion",
+									"value": "CREATE",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Obtiene una lista de logs del sistema (ADMIN, MODERADOR)"
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Log por ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3000/api/logs/{{logId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"logs",
+								"{{logId}}"
+							]
+						},
+						"description": "Obtiene los detalles de un log específico"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para la gestión y consulta de logs"
+		},
+		{
+			"name": "Prueba de Roles",
+			"item": [
+				{
+					"name": "Crear Usuario Operador",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fullName\": \"Usuario Operador\",\n    \"username\": \"operador\",\n    \"phoneNumber\": \"5555555555\",\n    \"employeeNumber\": \"EMP002\",\n    \"email\": \"operador@example.com\",\n    \"password\": \"password123\",\n    \"role\": \"OPERADOR\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						},
+						"description": "Crea un usuario con rol de OPERADOR"
+					},
+					"response": []
+				},
+				{
+					"name": "Crear Usuario Moderador",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fullName\": \"Usuario Moderador\",\n    \"username\": \"moderador\",\n    \"phoneNumber\": \"6666666666\",\n    \"employeeNumber\": \"EMP003\",\n    \"email\": \"moderador@example.com\",\n    \"password\": \"password123\",\n    \"role\": \"MODERADOR\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						},
+						"description": "Crea un usuario con rol de MODERADOR"
+					},
+					"response": []
+				},
+				{
+					"name": "Login como Operador",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"usernameOrEmail\": \"operador@example.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/auth/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Inicia sesión como OPERADOR"
+					},
+					"response": []
+				}
+			],
+			"description": "Pruebas de los diferentes roles del sistema"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"if (pm.response.code === 200 || pm.response.code === 201) {",
+					"    const responseJson = pm.response.json();",
+					"    if (responseJson && responseJson.access_token) {",
+					"        pm.environment.set('token', responseJson.access_token);",
+					"    }",
+					"    if (responseJson && responseJson.user && responseJson.user.id) {",
+					"        pm.environment.set('userId', responseJson.user.id);",
+					"    }",
+					"    if (responseJson && responseJson.id) {",
+					"        pm.environment.set('formId', responseJson.id);",
+					"    }",
+					"}"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "token",
+			"value": ""
+		},
+		{
+			"key": "userId",
+			"value": ""
+		},
+		{
+			"key": "formId",
+			"value": ""
+		},
+		{
+			"key": "logId",
+			"value": ""
+		}
+	]
+}

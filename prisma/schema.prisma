@@ -1,0 +1,134 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String   @id @default(uuid()) @db.UniqueIdentifier
+  fullName       String
+  username       String   @unique
+  phoneNumber    String?
+  employeeNumber String?  @unique
+  email          String   @unique
+  password       String
+  role           String   @default("OPERADOR") // ADMIN, MODERADOR, OPERADOR
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  // Relaciones
+  logs           Log[]
+  datosForm      DatosForm[]
+}
+
+model Log {
+  id              String   @id @default(uuid()) @db.UniqueIdentifier
+  accion          String   // CREATE, UPDATE, DELETE
+  descripcion     String?
+  entidad         String   // Nombre de la tabla/entidad afectada
+  fecha           DateTime @default(now())
+  
+  // Relaciones
+  userId          String   @db.UniqueIdentifier
+  user            User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  
+  // Relación con DatosForm si la acción afecta a un formulario
+  datosFormId     Int?
+  datosForm       DatosForm? @relation(fields: [datosFormId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model ImagenForm {
+  id             Int        @id @default(autoincrement())
+  url            String
+  descripcion    String?
+  
+  // Relaciones
+  datosFormId    Int
+  datosForm      DatosForm  @relation(fields: [datosFormId], references: [id], onDelete: Cascade)
+  
+  createdAt      DateTime   @default(now())
+}
+
+model DatosForm {
+  id                Int      @id @default(autoincrement())
+  numeroNota        String?  // N° 60005
+  fechaCreacion     DateTime? @default(now())
+  
+  // Relaciones
+  userId           String   @db.UniqueIdentifier
+  user             User     @relation(fields: [userId], references: [id])
+  logs             Log[]
+  
+  // Relación con imágenes
+  imagenes         ImagenForm[]
+
+  // Información del propietario y obra
+  propietario       String?
+  direccionObra     String?
+  sectorCatastral   String?
+  fechaInspeccion   DateTime?
+
+  // Ubicación de los trabajos
+  areaPrivada       Boolean? @default(false)
+  areaUsoPublico    Boolean? @default(false)
+
+  // Tipos de infracción
+  sinLicenciaConstruccion    Boolean? @default(false)
+  obraInseguraPeligrosa      Boolean? @default(false)
+  instalacionRotulosVallas   Boolean? @default(false)
+  construccionNoAutorizada   Boolean? @default(false)
+  construccionAreaPublica    Boolean? @default(false)
+  instalacionAntena          Boolean? @default(false)
+  cambioUsoNoAutorizado      Boolean? @default(false)
+  utilizaAreaPublicaMaterial Boolean? @default(false)
+  instalacionPostes          Boolean? @default(false)
+  licenciaVencida            Boolean? @default(false)
+  roturaViaBordillo          Boolean? @default(false)
+  otroTipoInfraccion         String?
+
+  // Información adicional para la cita
+  fechaCita                  DateTime?
+  
+  // Uso de suelo
+  usoSueloHabitacional       Boolean? @default(false)
+  usoSueloComercial          Boolean? @default(false)
+  usoSueloEquipamiento       Boolean? @default(false)
+  usoSueloServicios          Boolean? @default(false)
+  usoSueloProductivo         Boolean? @default(false)
+  usoSueloOtro               String?
+
+  // Tipo de obra
+  areaEstimada               Float?
+  niveles                    Int?
+  sotanos                    Int?
+  materiales                 String?
+  faseObra                   Float?  // Porcentaje de avance
+  costoAproximado            Float?
+
+  // Descripción
+  tipoRotuloValla            String?
+  empresa                    String?
+  tipoRotura                 String?
+  cantidadPostesAntenas      Int?
+  faseObraDescripcion        String?
+  descripcionOtro            String?
+
+  // Control de campo
+  numeroExpediente           String?
+  numeroLicencia             String?
+  fechaAutorizacion          DateTime?
+  fechaVencimiento           DateTime?
+  observaciones              String?
+
+  // Información de recibo
+  reciboNombreFirma          String?
+
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+}

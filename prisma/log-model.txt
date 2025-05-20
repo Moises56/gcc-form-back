@@ -1,0 +1,15 @@
+// Modelo Log para Prisma
+model Log {
+  id          String   @id @default(uuid()) @db.UniqueIdentifier
+  userId      String   @db.UniqueIdentifier
+  user        User     @relation(fields: [userId], references: [id])
+  action      String   // CREATE, UPDATE, DELETE, READ
+  entityType  String   // DatosForm, User, etc.
+  entityId    String?  // ID de la entidad relacionada
+  description String   // Descripción de la acción realizada
+  metadata    String?  @db.Text // JSON con metadata adicional
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([entityType, entityId])
+}
