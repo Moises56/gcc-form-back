@@ -1,4 +1,4 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { DatosFormController } from './datos-form.controller';
 import { DatosFormService } from './datos-form.service';
 import { PrismaModule } from '../prisma/prisma.module';
@@ -10,26 +10,27 @@ import { DatosFormImagenesService } from './services/datos-form-imagenes.service
 import { DatosFormDashboardService } from './services/datos-form-dashboard.service';
 import { DatosFormPaginationService } from './services/datos-form-pagination.service';
 import { DatosFormExtendedService } from './datos-form-extended.service';
+import { CommonModule } from '../common/common.module';
 
 @Module({
-  imports: [PrismaModule, LoggingModule, UploadsModule],
+  imports: [PrismaModule, LoggingModule, UploadsModule, CommonModule],
   controllers: [
     DatosFormController,
     DatosFormImagenesController,
-    DashboardController
+    DashboardController,
   ],
   providers: [
     DatosFormService,
     DatosFormImagenesService,
     DatosFormDashboardService,
     DatosFormPaginationService,
-    DatosFormExtendedService
+    DatosFormExtendedService,
   ],
   exports: [
     DatosFormService,
     DatosFormImagenesService,
     DatosFormDashboardService,
-    DatosFormExtendedService
+    DatosFormExtendedService,
   ],
 })
 export class DatosFormModule {}

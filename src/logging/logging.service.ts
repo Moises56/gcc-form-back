@@ -4,13 +4,12 @@ import { PrismaService } from '../prisma/prisma.service';
 @Injectable()
 export class LoggingService {
   constructor(private prisma: PrismaService) {}
-
   async createLog(data: {
     userId: string;
     accion: 'CREATE' | 'UPDATE' | 'DELETE';
     descripcion?: string;
     entidad: string;
-    datosFormId?: number;
+    datosFormId?: string;
   }) {
     return this.prisma.log.create({
       data: {

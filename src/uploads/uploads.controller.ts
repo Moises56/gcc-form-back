@@ -7,7 +7,6 @@ import {
   UseGuards,
   Param,
   Delete,
-  ParseIntPipe,
   BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
@@ -20,10 +19,10 @@ import { GetUser } from '../auth/decorators/get-user.decorator';
 
 // Define the ImagenForm interface to match the Prisma model
 export interface ImagenForm {
-  id: number;
+  id: string;
   url: string;
   descripcion: string | null;
-  datosFormId: number;
+  datosFormId: string;
   createdAt: Date;
 }
 
@@ -40,18 +39,22 @@ export class UploadsController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadSingleFile(
     @UploadedFile() file: Express.Multer.File,
-    @Param('formId', ParseIntPipe) formId: number,
+    @Param('formId') formId: string,
     @GetUser('id') userId: string,
   ): Promise<ImagenForm> {
     if (!file) {
       throw new BadRequestException('No se ha proporcionado ningún archivo');
     }
 
-    const url = this.uploadsService.getFileUrl(file.filename);    
-    return this.datosFormImagenesService.addImageToForm(formId, {
-      url,
-      descripcion: '',
-    }, userId) as Promise<ImagenForm>;
+    const url = this.uploadsService.getFileUrl(file.filename);
+    return this.datosFormImagenesService.addImageToForm(
+      formId,
+      {
+        url,
+        descripcion: '',
+      },
+      userId
+    ) as Promise<ImagenForm>;
   }
 
   @Post('multiple/:formId')
@@ -59,14 +62,15 @@ export class UploadsController {
   @UseInterceptors(FilesInterceptor('files', 6)) // Max 6 files
   async uploadMultipleFiles(
     @UploadedFiles() files: Express.Multer.File[],
-    @Param('formId', ParseIntPipe) formId: number,
+    @Param('formId') formId: string,
     @GetUser('id') userId: string,
   ): Promise<ImagenForm[]> {
     if (!files || files.length === 0) {
       throw new BadRequestException('No se ha proporcionado ningún archivo');
     }
 
-    const currentImages = await this.datosFormImagenesService.getFormImages(formId);
+    const currentImages = await this.datosFormImagenesService.getFormImages(formId) as ImagenForm[];
+    
     if (currentImages.length + files.length > 6) {
       throw new BadRequestException(
         'El formulario no puede tener más de 6 imágenes en total',
@@ -77,11 +81,11 @@ export class UploadsController {
     for (const file of files) {
       const url = this.uploadsService.getFileUrl(file.filename);
       const image = await this.datosFormImagenesService.addImageToForm(
-        formId, 
+        formId,
         {
           url,
           descripcion: '',
-        }, 
+        },
         userId
       );
       results.push(image as ImagenForm);
@@ -93,7 +97,7 @@ export class UploadsController {
   @Delete('image/:imageId')
   @Roles('ADMIN', 'MODERADOR')
   async deleteImage(
-    @Param('imageId', ParseIntPipe) imageId: number,
+    @Param('imageId') imageId: string,
     @GetUser('id') userId: string,
   ): Promise<{ message: string }> {
     return this.datosFormImagenesService.deleteImage(imageId, userId);

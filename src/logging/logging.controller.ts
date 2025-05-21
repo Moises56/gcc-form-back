@@ -13,11 +13,15 @@ export class LoggingController {
   constructor(
     private loggingService: LoggingService,
     private paginationService: LoggingPaginationService,
-  ) {}
-  @Roles('ADMIN', 'MODERADOR')
+  ) {}  @Roles('ADMIN', 'MODERADOR')
   @Get()
-  getLogs(@Query() filters: LogFilterDto) {
-    return this.paginationService.getPaginatedLogs(filters);
+  async getLogs(@Query() filters: LogFilterDto) {
+    try {
+      return await this.paginationService.getPaginatedLogs(filters);
+    } catch (error) {
+      console.error('Error in getLogs controller:', error);
+      throw error;
+    }
   }
 
   @Roles('ADMIN', 'MODERADOR')

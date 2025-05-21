@@ -3,6 +3,24 @@ BEGIN TRY
 BEGIN TRAN;
 
 -- CreateTable
+CREATE TABLE [dbo].[User] (
+    [id] UNIQUEIDENTIFIER NOT NULL,
+    [fullName] NVARCHAR(1000) NOT NULL,
+    [username] NVARCHAR(1000) NOT NULL,
+    [phoneNumber] NVARCHAR(1000),
+    [employeeNumber] NVARCHAR(1000),
+    [email] NVARCHAR(1000) NOT NULL,
+    [password] NVARCHAR(1000) NOT NULL,
+    [role] NVARCHAR(1000) NOT NULL CONSTRAINT [User_role_df] DEFAULT 'OPERADOR',
+    [createdAt] DATETIME2 NOT NULL CONSTRAINT [User_createdAt_df] DEFAULT CURRENT_TIMESTAMP,
+    [updatedAt] DATETIME2 NOT NULL,
+    CONSTRAINT [User_pkey] PRIMARY KEY CLUSTERED ([id]),
+    CONSTRAINT [User_username_key] UNIQUE NONCLUSTERED ([username]),
+    CONSTRAINT [User_employeeNumber_key] UNIQUE NONCLUSTERED ([employeeNumber]),
+    CONSTRAINT [User_email_key] UNIQUE NONCLUSTERED ([email])
+);
+
+-- CreateTable
 CREATE TABLE [dbo].[Log] (
     [id] UNIQUEIDENTIFIER NOT NULL,
     [accion] NVARCHAR(1000) NOT NULL,
@@ -10,13 +28,23 @@ CREATE TABLE [dbo].[Log] (
     [entidad] NVARCHAR(1000) NOT NULL,
     [fecha] DATETIME2 NOT NULL CONSTRAINT [Log_fecha_df] DEFAULT CURRENT_TIMESTAMP,
     [userId] UNIQUEIDENTIFIER NOT NULL,
-    [datosFormId] INT,
+    [datosFormId] UNIQUEIDENTIFIER,
     CONSTRAINT [Log_pkey] PRIMARY KEY CLUSTERED ([id])
 );
 
 -- CreateTable
+CREATE TABLE [dbo].[ImagenForm] (
+    [id] UNIQUEIDENTIFIER NOT NULL,
+    [url] NVARCHAR(1000) NOT NULL,
+    [descripcion] NVARCHAR(1000),
+    [datosFormId] UNIQUEIDENTIFIER NOT NULL,
+    [createdAt] DATETIME2 NOT NULL CONSTRAINT [ImagenForm_createdAt_df] DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT [ImagenForm_pkey] PRIMARY KEY CLUSTERED ([id])
+);
+
+-- CreateTable
 CREATE TABLE [dbo].[DatosForm] (
-    [id] INT NOT NULL IDENTITY(1,1),
+    [id] UNIQUEIDENTIFIER NOT NULL,
     [numeroNota] NVARCHAR(1000),
     [fechaCreacion] DATETIME2 CONSTRAINT [DatosForm_fechaCreacion_df] DEFAULT CURRENT_TIMESTAMP,
     [userId] UNIQUEIDENTIFIER NOT NULL,
@@ -73,6 +101,9 @@ ALTER TABLE [dbo].[Log] ADD CONSTRAINT [Log_userId_fkey] FOREIGN KEY ([userId]) 
 
 -- AddForeignKey
 ALTER TABLE [dbo].[Log] ADD CONSTRAINT [Log_datosFormId_fkey] FOREIGN KEY ([datosFormId]) REFERENCES [dbo].[DatosForm]([id]) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+-- AddForeignKey
+ALTER TABLE [dbo].[ImagenForm] ADD CONSTRAINT [ImagenForm_datosFormId_fkey] FOREIGN KEY ([datosFormId]) REFERENCES [dbo].[DatosForm]([id]) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE [dbo].[DatosForm] ADD CONSTRAINT [DatosForm_userId_fkey] FOREIGN KEY ([userId]) REFERENCES [dbo].[User]([id]) ON DELETE NO ACTION ON UPDATE CASCADE;

@@ -7,12 +7,14 @@ import {
   UpdateDatosFormDto,
 } from './dto/datos-form.dto';
 import { LoggingService } from '../logging/logging.service';
+import { DatabaseCleanupService } from '../common/services/database-cleanup.service';
 
 @Injectable()
 export class DatosFormService {
   constructor(
     private prisma: PrismaService,
     private loggingService: LoggingService,
+    private databaseCleanupService: DatabaseCleanupService,
   ) {}
 
   // Create new form
@@ -128,51 +130,69 @@ export class DatosFormService {
         currentPage: page,
       },
     };
-  }
-
-  // Get form by id
-  async getFormById(id: number) {
-    const form = await this.prisma.datosForm.findUnique({
-      where: { id },
-      include: {
-        user: {
-          select: {
-            id: true,
-            fullName: true,
-            username: true,
-          },
-        },
-      },
-    });
-
-    if (!form) {
-      throw new NotFoundException(`Formulario con ID ${id} no encontrado`);
+  }  // Get form by id
+  async getFormById(id: string) {
+    // Validar que el id sea un UUID válido
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id)) {
+      throw new NotFoundException(`El ID del formulario ${id} no es válido`);
     }
 
-    return form;
-  }
-
-  // Get forms by userId
-  async getFormsByUserId(userId: string) {
-    return this.prisma.datosForm.findMany({
-      where: { userId },
-      include: {
-        user: {
-          select: {
-            id: true,
-            fullName: true,
-            username: true,
+    try {
+      const form = await this.prisma.datosForm.findUnique({
+        where: { id },
+        include: {
+          user: {
+            select: {
+              id: true,
+              fullName: true,
+              username: true,
+            },
           },
         },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
-  }
+      });
 
+      if (!form) {
+        throw new NotFoundException(`Formulario con ID ${id} no encontrado`);
+      }
+
+      return form;
+    } catch (error) {
+      console.error(`Error al buscar formulario con ID ${id}:`, error);
+      throw new NotFoundException(`No se pudo encontrar el formulario con ID ${id}`);
+    }
+  }
+  // Get forms by userId
+  async getFormsByUserId(userId: string) {
+    // Validar que el userId sea un UUID válido
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(userId)) {
+      throw new NotFoundException(`El ID de usuario proporcionado no es válido`);
+    }
+
+    try {
+      return await this.prisma.datosForm.findMany({
+        where: { userId },
+        include: {
+          user: {
+            select: {
+              id: true,
+              fullName: true,
+              username: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+    } catch (error) {
+      console.error('Error al obtener formularios del usuario:', error);
+      throw new NotFoundException(`No se pudieron obtener los formularios para el usuario con ID ${userId}`);
+    }
+  }
   // Update form
-  async updateForm(id: number, dto: UpdateDatosFormDto, userId: string) {
+  async updateForm(id: string, dto: UpdateDatosFormDto, userId: string) {
     // First verify the form exists
     const existingForm = await this.prisma.datosForm.findUnique({
       where: { id },
@@ -199,9 +219,8 @@ export class DatosFormService {
 
     return updatedForm;
   }
-
   // Delete form
-  async deleteForm(id: number, userId: string) {
+  async deleteForm(id: string, userId: string) {
     // First verify the form exists
     const existingForm = await this.prisma.datosForm.findUnique({
       where: { id },
@@ -210,6 +229,9 @@ export class DatosFormService {
     if (!existingForm) {
       throw new NotFoundException(`Formulario con ID ${id} no encontrado`);
     }
+
+    // Use database cleanup service to safely remove related logs and data
+    await this.databaseCleanupService.cleanupForm(id);
 
     // Delete the form
     await this.prisma.datosForm.delete({

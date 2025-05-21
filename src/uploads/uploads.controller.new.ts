@@ -7,63 +7,58 @@ import {
   UseGuards,
   Param,
   Delete,
-  ParseIntPipe,
   BadRequestException,
-  Get,
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { JwtGuard } from '../../auth/guards/jwt.guard';
-import { RolesGuard } from '../../auth/guards/roles.guard';
-import { Roles } from '../../auth/decorators/roles.decorator';
-import { GetUser } from '../../auth/decorators/get-user.decorator';
-import { DatosFormImagenesService } from '../services/datos-form-imagenes.service';
-import { UploadsService } from '../../uploads/uploads.service';
-import { CreateImagenDto } from '../dto/datos-form.dto';
+import { JwtGuard } from '../auth/guards/jwt.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { UploadsService } from './uploads.service';
+import { DatosFormImagenesService } from '../datos-form/services/datos-form-imagenes.service';
+import { GetUser } from '../auth/decorators/get-user.decorator';
 
-// Define ImagenForm interface to match the Prisma model
+// Define the ImagenForm interface to match the Prisma model
 export interface ImagenForm {
-  id: number;
+  id: string;
   url: string;
   descripcion: string | null;
-  datosFormId: number;
+  datosFormId: string;
   createdAt: Date;
 }
 
 @UseGuards(JwtGuard, RolesGuard)
-@Controller('datos-form/imagenes')
-export class DatosFormImagenesController {
+@Controller('uploads')
+export class UploadsController {
   constructor(
-    private datosFormImagenesService: DatosFormImagenesService,
     private uploadsService: UploadsService,
+    private datosFormImagenesService: DatosFormImagenesService,
   ) {}
 
-  @Post(':formId')
+  @Post('single/:formId')
   @Roles('ADMIN', 'MODERADOR', 'OPERADOR')
   @UseInterceptors(FileInterceptor('file'))
-  async uploadSingleImage(
+  async uploadSingleFile(
     @UploadedFile() file: Express.Multer.File,
-    @Param('formId', ParseIntPipe) formId: number,
+    @Param('formId') formId: string,
     @GetUser('id') userId: string,
   ): Promise<ImagenForm> {
     if (!file) {
       throw new BadRequestException('No se ha proporcionado ningún archivo');
     }
 
-    const url = this.uploadsService.getFileUrl(file.filename);
-    const imageData: CreateImagenDto = {
+    const url = this.uploadsService.getFileUrl(file.filename);    
+    return this.datosFormImagenesService.addImageToForm(formId, {
       url,
       descripcion: '',
-    };
-
-    return this.datosFormImagenesService.addImageToForm(formId, imageData, userId);
+    }, userId) as Promise<ImagenForm>;
   }
 
   @Post('multiple/:formId')
   @Roles('ADMIN', 'MODERADOR', 'OPERADOR')
   @UseInterceptors(FilesInterceptor('files', 6)) // Max 6 files
-  async uploadMultipleImages(
+  async uploadMultipleFiles(
     @UploadedFiles() files: Express.Multer.File[],
-    @Param('formId', ParseIntPipe) formId: number,
+    @Param('formId') formId: string,
     @GetUser('id') userId: string,
   ): Promise<ImagenForm[]> {
     if (!files || files.length === 0) {
@@ -71,7 +66,6 @@ export class DatosFormImagenesController {
     }
 
     const currentImages = await this.datosFormImagenesService.getFormImages(formId);
-    
     if (currentImages.length + files.length > 6) {
       throw new BadRequestException(
         'El formulario no puede tener más de 6 imágenes en total',
@@ -81,28 +75,24 @@ export class DatosFormImagenesController {
     const results: ImagenForm[] = [];
     for (const file of files) {
       const url = this.uploadsService.getFileUrl(file.filename);
-      const imageData: CreateImagenDto = {
-        url,
-        descripcion: '',
-      };
-
-      const image = await this.datosFormImagenesService.addImageToForm(formId, imageData, userId);
+      const image = await this.datosFormImagenesService.addImageToForm(
+        formId, 
+        {
+          url,
+          descripcion: '',
+        }, 
+        userId
+      );
       results.push(image as ImagenForm);
     }
 
     return results;
   }
 
-  @Get(':formId')
-  @Roles('ADMIN', 'MODERADOR', 'OPERADOR')
-  async getFormImages(@Param('formId', ParseIntPipe) formId: number): Promise<ImagenForm[]> {
-    return this.datosFormImagenesService.getFormImages(formId);
-  }
-
-  @Delete(':imageId')
+  @Delete('image/:imageId')
   @Roles('ADMIN', 'MODERADOR')
   async deleteImage(
-    @Param('imageId', ParseIntPipe) imageId: number,
+    @Param('imageId') imageId: string,
     @GetUser('id') userId: string,
   ): Promise<{ message: string }> {
     return this.datosFormImagenesService.deleteImage(imageId, userId);

@@ -11,8 +11,11 @@ export class DatosFormImagenesService {
     private loggingService: LoggingService,
     private uploadsService: UploadsService,
   ) {}
-  // Add image to form
-  async addImageToForm(formId: number, imageData: CreateImagenDto, userId: string) {
+    async addImageToForm(
+    formId: string,
+    imageData: CreateImagenDto,
+    userId: string,
+  ) {
     // Check if form exists
     const form = await this.prisma.datosForm.findUnique({
       where: { id: formId }
@@ -53,9 +56,8 @@ export class DatosFormImagenesService {
 
     return newImage;
   }
-
   // Delete image from form
-  async deleteImage(imageId: number, userId: string) {
+  async deleteImage(imageId: string, userId: string) {
     // Check if image exists
     const image = await this.prisma.imagenForm.findUnique({
       where: { id: imageId },
@@ -83,15 +85,16 @@ export class DatosFormImagenesService {
     await this.loggingService.createLog({
       userId,
       accion: 'DELETE',
-      descripcion: `Imagen eliminada del formulario de inspección (ID: ${image.datosForm.id})`,
+      descripcion: `Imagen eliminada del formulario de inspección (ID: ${image.datosFormId})`,
       entidad: 'DatosForm',
-      datosFormId: image.datosForm.id,
+      datosFormId: image.datosFormId,
     });
 
     return { message: 'Imagen eliminada exitosamente' };
-  }
-  // Get all images for a form
-  async getFormImages(formId: number) {
+  }  // Get all images for a form
+    async getFormImages(
+    formId: string,
+  ) {
     // Check if form exists
     const form = await this.prisma.datosForm.findUnique({
       where: { id: formId },
@@ -107,10 +110,11 @@ export class DatosFormImagenesService {
     });
 
     return images;
-  }
-
-  // Update image description
-  async updateImageDescription(imageId: number, description: string, userId: string) {
+  }  async updateImageDescription(
+    imageId: string,
+    description: string,
+    userId: string,
+  ) {
     // Check if image exists
     const image = await this.prisma.imagenForm.findUnique({
       where: { id: imageId },
@@ -133,7 +137,7 @@ export class DatosFormImagenesService {
       accion: 'UPDATE',
       descripcion: `Descripción de imagen actualizada (ID: ${imageId})`,
       entidad: 'DatosForm',
-      datosFormId: image.datosForm.id,
+      datosFormId: image.datosFormId,
     });
 
     return updatedImage;

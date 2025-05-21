@@ -2,10 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from '../auth/dto/auth.dto';
 import * as bcrypt from 'bcrypt';
+import { DatabaseCleanupService } from '../common/services/database-cleanup.service';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private databaseCleanupService: DatabaseCleanupService
+  ) {}
 
   // Get all users
   async getAllUsers() {
@@ -74,10 +78,11 @@ export class UserService {
     });
     
     return user;
-  }
-
-  // Delete user
+  }  // Delete user
   async deleteUser(id: string) {
+    // Use database cleanup service to safely remove related logs and data
+    await this.databaseCleanupService.cleanupUser(id);
+    
     await this.prisma.user.delete({
       where: {
         id,

@@ -21,62 +21,62 @@ model User {
   role           String   @default("OPERADOR") // ADMIN, MODERADOR, OPERADOR
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  
+
   // Relaciones
-  logs           Log[]
-  datosForm      DatosForm[]
+  logs      Log[]
+  datosForm DatosForm[]
 }
 
 model Log {
-  id              String   @id @default(uuid()) @db.UniqueIdentifier
-  accion          String   // CREATE, UPDATE, DELETE
-  descripcion     String?
-  entidad         String   // Nombre de la tabla/entidad afectada
-  fecha           DateTime @default(now())
-  
+  id          String   @id @default(uuid()) @db.UniqueIdentifier
+  accion      String // CREATE, UPDATE, DELETE
+  descripcion String?
+  entidad     String // Nombre de la tabla/entidad afectada
+  fecha       DateTime @default(now())
+
   // Relaciones
-  userId          String   @db.UniqueIdentifier
-  user            User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  
+  userId String @db.UniqueIdentifier
+  user   User   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
   // Relación con DatosForm si la acción afecta a un formulario
-  datosFormId     Int?
-  datosForm       DatosForm? @relation(fields: [datosFormId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  datosFormId String?    @db.UniqueIdentifier
+  datosForm   DatosForm? @relation(fields: [datosFormId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model ImagenForm {
-  id             Int        @id @default(autoincrement())
-  url            String
-  descripcion    String?
-  
+  id          String  @id @default(uuid()) @db.UniqueIdentifier
+  url         String
+  descripcion String?
+
   // Relaciones
-  datosFormId    Int
-  datosForm      DatosForm  @relation(fields: [datosFormId], references: [id], onDelete: Cascade)
-  
-  createdAt      DateTime   @default(now())
+  datosFormId String    @db.UniqueIdentifier
+  datosForm   DatosForm @relation(fields: [datosFormId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
 }
 
 model DatosForm {
-  id                Int      @id @default(autoincrement())
-  numeroNota        String?  // N° 60005
-  fechaCreacion     DateTime? @default(now())
-  
+  id            String    @id @default(uuid()) @db.UniqueIdentifier
+  numeroNota    String? // N° 60005
+  fechaCreacion DateTime? @default(now())
+
   // Relaciones
-  userId           String   @db.UniqueIdentifier
-  user             User     @relation(fields: [userId], references: [id])
-  logs             Log[]
-  
+  userId String @db.UniqueIdentifier
+  user   User   @relation(fields: [userId], references: [id])
+  logs   Log[]
+
   // Relación con imágenes
-  imagenes         ImagenForm[]
+  imagenes ImagenForm[]
 
   // Información del propietario y obra
-  propietario       String?
-  direccionObra     String?
-  sectorCatastral   String?
-  fechaInspeccion   DateTime?
+  propietario     String?
+  direccionObra   String?
+  sectorCatastral String?
+  fechaInspeccion DateTime?
 
   // Ubicación de los trabajos
-  areaPrivada       Boolean? @default(false)
-  areaUsoPublico    Boolean? @default(false)
+  areaPrivada    Boolean? @default(false)
+  areaUsoPublico Boolean? @default(false)
 
   // Tipos de infracción
   sinLicenciaConstruccion    Boolean? @default(false)
@@ -93,42 +93,42 @@ model DatosForm {
   otroTipoInfraccion         String?
 
   // Información adicional para la cita
-  fechaCita                  DateTime?
-  
+  fechaCita DateTime?
+
   // Uso de suelo
-  usoSueloHabitacional       Boolean? @default(false)
-  usoSueloComercial          Boolean? @default(false)
-  usoSueloEquipamiento       Boolean? @default(false)
-  usoSueloServicios          Boolean? @default(false)
-  usoSueloProductivo         Boolean? @default(false)
-  usoSueloOtro               String?
+  usoSueloHabitacional Boolean? @default(false)
+  usoSueloComercial    Boolean? @default(false)
+  usoSueloEquipamiento Boolean? @default(false)
+  usoSueloServicios    Boolean? @default(false)
+  usoSueloProductivo   Boolean? @default(false)
+  usoSueloOtro         String?
 
   // Tipo de obra
-  areaEstimada               Float?
-  niveles                    Int?
-  sotanos                    Int?
-  materiales                 String?
-  faseObra                   Float?  // Porcentaje de avance
-  costoAproximado            Float?
+  areaEstimada    Float?
+  niveles         Int?
+  sotanos         Int?
+  materiales      String?
+  faseObra        Float? // Porcentaje de avance
+  costoAproximado Float?
 
   // Descripción
-  tipoRotuloValla            String?
-  empresa                    String?
-  tipoRotura                 String?
-  cantidadPostesAntenas      Int?
-  faseObraDescripcion        String?
-  descripcionOtro            String?
+  tipoRotuloValla       String?
+  empresa               String?
+  tipoRotura            String?
+  cantidadPostesAntenas Int?
+  faseObraDescripcion   String?
+  descripcionOtro       String?
 
   // Control de campo
-  numeroExpediente           String?
-  numeroLicencia             String?
-  fechaAutorizacion          DateTime?
-  fechaVencimiento           DateTime?
-  observaciones              String?
+  numeroExpediente  String?
+  numeroLicencia    String?
+  fechaAutorizacion DateTime?
+  fechaVencimiento  DateTime?
+  observaciones     String?
 
   // Información de recibo
-  reciboNombreFirma          String?
+  reciboNombreFirma String?
 
-  createdAt                  DateTime @default(now())
-  updatedAt                  DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

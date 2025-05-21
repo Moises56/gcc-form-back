@@ -7,7 +7,6 @@ import {
   UseGuards,
   Param,
   Delete,
-  ParseIntPipe,
   BadRequestException,
   Get,
 } from '@nestjs/common';
@@ -22,10 +21,10 @@ import { CreateImagenDto } from '../dto/datos-form.dto';
 
 // Define the ImagenForm interface to match the Prisma model
 export interface ImagenForm {
-  id: number;
+  id: string;
   url: string;
   descripcion: string | null;
-  datosFormId: number;
+  datosFormId: string;
   createdAt: Date;
 }
 
@@ -42,7 +41,7 @@ export class DatosFormImagenesController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadSingleImage(
     @UploadedFile() file: Express.Multer.File,
-    @Param('formId', ParseIntPipe) formId: number,
+    @Param('formId') formId: string,
     @GetUser('id') userId: string,
   ): Promise<ImagenForm> {
     if (!file) {
@@ -56,9 +55,9 @@ export class DatosFormImagenesController {
     };
 
     return this.datosFormImagenesService.addImageToForm(
-      formId, 
-      imageData, 
-      userId
+      formId,
+      imageData,
+      userId,
     ) as Promise<ImagenForm>;
   }
 
@@ -67,14 +66,16 @@ export class DatosFormImagenesController {
   @UseInterceptors(FilesInterceptor('files', 6)) // Max 6 files
   async uploadMultipleImages(
     @UploadedFiles() files: Express.Multer.File[],
-    @Param('formId', ParseIntPipe) formId: number,
+    @Param('formId') formId: string,
     @GetUser('id') userId: string,
   ): Promise<ImagenForm[]> {
     if (!files || files.length === 0) {
       throw new BadRequestException('No se ha proporcionado ningún archivo');
     }
 
-    const currentImages = await this.datosFormImagenesService.getFormImages(formId);
+    const currentImages = (await this.datosFormImagenesService.getFormImages(
+      formId,
+    )) as ImagenForm[];
     
     if (currentImages.length + files.length > 6) {
       throw new BadRequestException(
@@ -91,9 +92,9 @@ export class DatosFormImagenesController {
       };
 
       const image = await this.datosFormImagenesService.addImageToForm(
-        formId, 
-        imageData, 
-        userId
+        formId,
+        imageData,
+        userId,
       );
       results.push(image as ImagenForm);
     }
@@ -103,14 +104,18 @@ export class DatosFormImagenesController {
 
   @Get(':formId')
   @Roles('ADMIN', 'MODERADOR', 'OPERADOR')
-  async getFormImages(@Param('formId', ParseIntPipe) formId: number): Promise<ImagenForm[]> {
-    return this.datosFormImagenesService.getFormImages(formId) as Promise<ImagenForm[]>;
+  async getFormImages(@Param('formId') formId: string): Promise<
+    ImagenForm[]
+  > {
+    return this.datosFormImagenesService.getFormImages(formId) as Promise<
+      ImagenForm[]
+    >;
   }
 
   @Delete(':imageId')
   @Roles('ADMIN', 'MODERADOR')
   async deleteImage(
-    @Param('imageId', ParseIntPipe) imageId: number,
+    @Param('imageId') imageId: string,
     @GetUser('id') userId: string,
   ): Promise<{ message: string }> {
     return this.datosFormImagenesService.deleteImage(imageId, userId);

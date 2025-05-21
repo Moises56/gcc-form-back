@@ -32,7 +32,7 @@ export class DatosFormDashboardService {
         ORDER BY YEAR(fechaCreacion), MONTH(fechaCreacion)
       `;
 
-      // Forms by user
+      // Forms by user - we'll sort them after retrieving
       const formsByUser = await this.prisma.user.findMany({
         select: {
           id: true,
@@ -44,24 +44,32 @@ export class DatosFormDashboardService {
             },
           },
         },
-        orderBy: {
-          datosForm: {
-            _count: "desc",
-          },
-        },
-        take: 10,
       });
+      
+      // Sort by form count descending
+      formsByUser.sort((a, b) => {
+        return b._count.datosForm - a._count.datosForm;
+      });
+      
+      // Take only the top 10
+      const topUsers = formsByUser.slice(0, 10);
 
       // Areas with most forms
       const formsBySector = await this.prisma.datosForm.groupBy({
         by: ["sectorCatastral"],
-        _count: true,
+        _count: {
+          id: true
+        },
         where: {
           sectorCatastral: {
             not: null,
           },
         },
-        orderBy: undefined, // Required by Prisma when using take
+        orderBy: {
+          _count: {
+            id: "desc"
+          }
+        },
         take: 10,
       });
 
@@ -119,7 +127,7 @@ export class DatosFormDashboardService {
       return {
         totalForms,
         formsByMonth,
-        formsByUser,
+        formsByUser: topUsers,
         formsBySector,
         infractions,
         formsWithImages,
