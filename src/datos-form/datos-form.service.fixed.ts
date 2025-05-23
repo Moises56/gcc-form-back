@@ -240,40 +240,6 @@ export class DatosFormService {
     return updatedForm;
   }
   
-  // Update form status
-  async updateFormStatus(id: string, estado: string, userId: string) {
-    // Verificar valores permitidos para estado
-    if (estado !== 'ACTIVO' && estado !== 'INACTIVO') {
-      throw new NotFoundException(`Estado no válido. Los valores permitidos son ACTIVO o INACTIVO`);
-    }
-    
-    // First verify the form exists
-    const existingForm = await this.prisma.datosForm.findUnique({
-      where: { id },
-    });
-
-    if (!existingForm) {
-      throw new NotFoundException(`Formulario con ID ${id} no encontrado`);
-    }
-
-    // Update the form status
-    const updatedForm = await this.prisma.datosForm.update({
-      where: { id },
-      data: { estado },
-    });
-
-    // Log the action
-    await this.loggingService.createLog({
-      userId,
-      accion: 'UPDATE',
-      descripcion: `Cambio de estado del formulario (ID: ${id}) a ${estado}`,
-      entidad: 'DatosForm',
-      datosFormId: id,
-    });
-
-    return updatedForm;
-  }
-  
   // Delete form
   async deleteForm(id: string, userId: string) {
     // First verify the form exists

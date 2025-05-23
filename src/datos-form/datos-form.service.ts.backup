@@ -130,9 +130,9 @@ export class DatosFormService {
         currentPage: page,
       },
     };
-  }
+  }  
   
-  // Get form by id
+  // Get form by id  
   async getFormById(id: string) {
     // Validar que el id sea un UUID válido
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -171,9 +171,7 @@ export class DatosFormService {
       console.error(`Error al buscar formulario con ID ${id}:`, error);
       throw new NotFoundException(`No se pudo encontrar el formulario con ID ${id}`);
     }
-  }
-  
-  // Get forms by userId
+  }  // Get forms by userId
   async getFormsByUserId(userId: string) {
     // Validar que el userId sea un UUID válido
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -210,7 +208,6 @@ export class DatosFormService {
       throw new NotFoundException(`No se pudieron obtener los formularios para el usuario con ID ${userId}`);
     }
   }
-  
   // Update form
   async updateForm(id: string, dto: UpdateDatosFormDto, userId: string) {
     // First verify the form exists
@@ -239,41 +236,6 @@ export class DatosFormService {
 
     return updatedForm;
   }
-  
-  // Update form status
-  async updateFormStatus(id: string, estado: string, userId: string) {
-    // Verificar valores permitidos para estado
-    if (estado !== 'ACTIVO' && estado !== 'INACTIVO') {
-      throw new NotFoundException(`Estado no válido. Los valores permitidos son ACTIVO o INACTIVO`);
-    }
-    
-    // First verify the form exists
-    const existingForm = await this.prisma.datosForm.findUnique({
-      where: { id },
-    });
-
-    if (!existingForm) {
-      throw new NotFoundException(`Formulario con ID ${id} no encontrado`);
-    }
-
-    // Update the form status
-    const updatedForm = await this.prisma.datosForm.update({
-      where: { id },
-      data: { estado },
-    });
-
-    // Log the action
-    await this.loggingService.createLog({
-      userId,
-      accion: 'UPDATE',
-      descripcion: `Cambio de estado del formulario (ID: ${id}) a ${estado}`,
-      entidad: 'DatosForm',
-      datosFormId: id,
-    });
-
-    return updatedForm;
-  }
-  
   // Delete form
   async deleteForm(id: string, userId: string) {
     // First verify the form exists
@@ -302,5 +264,99 @@ export class DatosFormService {
     });
 
     return { message: 'Formulario eliminado exitosamente' };
+  }
+
+  // Get forms with Pagination using DatosFormPaginationService
+  async getPaginatedForms(filters: FilterDatosFormDto) {
+    const where: any = {};
+
+    if (filters.numeroNota) {
+      where.numeroNota = { contains: filters.numeroNota };
+    }
+
+    if (filters.propietario) {
+      where.propietario = { contains: filters.propietario };
+    }
+
+    if (filters.direccionObra) {
+      where.direccionObra = { contains: filters.direccionObra };
+    }
+
+    if (filters.sectorCatastral) {
+      where.sectorCatastral = { contains: filters.sectorCatastral };
+    }
+
+    if (filters.userId) {
+      where.userId = filters.userId;
+    }
+
+    if (filters.areaPrivada !== undefined) {
+      where.areaPrivada = filters.areaPrivada;
+    }
+
+    if (filters.areaUsoPublico !== undefined) {
+      where.areaUsoPublico = filters.areaUsoPublico;
+    }
+
+    if (filters.fechaInicioCreacion || filters.fechaFinCreacion) {
+      where.fechaCreacion = {};
+      
+      if (filters.fechaInicioCreacion) {
+        where.fechaCreacion.gte = filters.fechaInicioCreacion;
+      }
+      
+      if (filters.fechaFinCreacion) {
+        where.fechaCreacion.lte = filters.fechaFinCreacion;
+      }
+    }
+
+    if (filters.fechaInspeccionInicio || filters.fechaInspeccionFin) {
+      where.fechaInspeccion = {};
+      
+      if (filters.fechaInspeccionInicio) {
+        where.fechaInspeccion.gte = filters.fechaInspeccionInicio;
+      }
+      
+      if (filters.fechaInspeccionFin) {
+        where.fechaInspeccion.lte = filters.fechaInspeccionFin;
+      }
+    }
+
+    const page = filters.page || 1;
+    const limit = filters.limit || 10;
+    const skip = (page - 1) * limit;
+    const sortBy = filters.sortBy || 'createdAt';
+    const sortOrder = filters.sortOrder || 'desc';
+    
+    const orderBy = { [sortBy]: sortOrder };
+
+    const totalCount = await this.prisma.datosForm.count({ where });
+    
+    const forms = await this.prisma.datosForm.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy,
+      include: {
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+            username: true,
+          },
+        },
+      },
+    });
+
+    return {
+      data: forms,
+      meta: {
+        itemCount: forms.length,
+        totalItems: totalCount,
+        itemsPerPage: limit,
+        totalPages: Math.ceil(totalCount / limit),
+        currentPage: page,
+      },
+    };
   }
 }

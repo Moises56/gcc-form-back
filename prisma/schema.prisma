@@ -59,6 +59,7 @@ model DatosForm {
   id            String    @id @default(uuid()) @db.UniqueIdentifier
   numeroNota    String? // N° 60005
   fechaCreacion DateTime? @default(now())
+  estado        String    @default("ACTIVO") // ACTIVO, INACTIVO
 
   // Relaciones
   userId String @db.UniqueIdentifier
@@ -79,18 +80,24 @@ model DatosForm {
   areaUsoPublico Boolean? @default(false)
 
   // Tipos de infracción
+  // Grupo A
   sinLicenciaConstruccion    Boolean? @default(false)
-  obraInseguraPeligrosa      Boolean? @default(false)
-  instalacionRotulosVallas   Boolean? @default(false)
   construccionNoAutorizada   Boolean? @default(false)
-  construccionAreaPublica    Boolean? @default(false)
-  instalacionAntena          Boolean? @default(false)
   cambioUsoNoAutorizado      Boolean? @default(false)
-  utilizaAreaPublicaMaterial Boolean? @default(false)
-  instalacionPostes          Boolean? @default(false)
   licenciaVencida            Boolean? @default(false)
+
+  // Grupo B
+  obraInseguraPeligrosa      Boolean? @default(false)
+  construccionAreaPublica    Boolean? @default(false)
+  utilizaAreaPublicaMaterial Boolean? @default(false)
   roturaViaBordillo          Boolean? @default(false)
+  
+  // Grupo C
+  instalacionRotulosVallas   Boolean? @default(false)
+  instalacionAntena          Boolean? @default(false)
+  instalacionPostes          Boolean? @default(false)
   otroTipoInfraccion         String?
+  
 
   // Información adicional para la cita
   fechaCita DateTime?

@@ -64,7 +64,6 @@ export class DatosFormController {
     
     return this.extendedService.getPaginatedForms(filters);
   }
-
   @Roles('ADMIN', 'MODERADOR', 'OPERADOR')
   @Get('my-forms')
   async getMyForms(@GetUser('id') userId: string) {
@@ -75,12 +74,34 @@ export class DatosFormController {
         throw new BadRequestException('El ID de usuario no es un UUID válido');
       }
       
-      return await this.datosFormService.getFormsByUserId(userId);
+      const forms = await this.datosFormService.getFormsByUserId(userId);
+      
+      // Verificar que se obtuvieron datos
+      if (!forms || forms.length === 0) {
+        // No es un error, simplemente no hay formularios
+        return { 
+          message: 'No se encontraron formularios para este usuario',
+          data: [] 
+        };
+      }
+      
+      // Devolver los formularios con sus imágenes
+      return {
+        message: 'Formularios obtenidos correctamente',
+        count: forms.length,
+        data: forms
+      };
     } catch (error) {
       console.error('Error al obtener formularios del usuario actual:', error);
       if (error instanceof BadRequestException) {
         throw error;
       }
+      
+      // Si es un error de servidor, devolver un error 500
+      if (!(error instanceof BadRequestException)) {
+        throw new InternalServerErrorException(`Error interno al procesar la solicitud: ${error.message}`);
+      }
+      
       throw new BadRequestException(`Error al obtener los formularios: ${error.message}`);
     }
   }
@@ -105,6 +126,21 @@ export class DatosFormController {
     @GetUser('id') userId: string,
   ) {
     return this.datosFormService.updateForm(id, dto, userId);
+  }
+
+  @Roles('ADMIN', 'MODERADOR', 'OPERADOR')
+  @Put(':id/estado/:estado')
+  updateFormStatus(
+    @Param('id') id: string,
+    @Param('estado') estado: string,
+    @GetUser('id') userId: string,
+  ) {
+    if (estado !== 'ACTIVO' && estado !== 'INACTIVO') {
+      throw new BadRequestException(
+        'Estado no válido. Los valores permitidos son ACTIVO o INACTIVO'
+      );
+    }
+    return this.datosFormService.updateFormStatus(id, estado, userId);
   }
 
   @Roles('ADMIN', 'MODERADOR')

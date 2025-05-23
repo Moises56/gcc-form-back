@@ -7,6 +7,10 @@ export class CreateDatosFormDto {
   @IsString()
   numeroNota?: string;
   
+  @IsOptional()
+  @IsString()
+  estado?: string;
+  
   // userId will be set by the controller from the authenticated user
   @IsOptional()
   @IsUUID()
@@ -231,7 +235,13 @@ export class PaginationMeta {
 // Pagination response wrapper
 export class PaginatedResponse<T> {
   data: T[];
-  meta: PaginationMeta;
+  meta: {
+    itemCount: number;
+    totalItems: number;
+    itemsPerPage: number;
+    totalPages: number;
+    currentPage: number;
+  };
 }
 
 export class PaginationDto {
@@ -302,4 +312,9 @@ export class FilterDatosFormDto extends PaginationDto {
   @Type(() => Date)
   @IsDate()
   fechaInspeccionFin?: Date;
+}
+
+export class UpdateFormStatusDto {
+  @IsString()
+  estado: string;
 }
