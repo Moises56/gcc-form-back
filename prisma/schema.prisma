@@ -19,6 +19,7 @@ model User {
   email          String   @unique
   password       String
   role           String   @default("OPERADOR") // ADMIN, MODERADOR, OPERADOR
+  status         String   @default("ACTIVO") // ACTIVO, INACTIVO
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 

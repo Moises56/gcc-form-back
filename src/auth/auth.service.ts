@@ -51,8 +51,7 @@ export class AuthService {
     return result;
   }
 
-  async login(dto: LoginDto, res: Response) {
-    // Find user by username or email
+  async login(dto: LoginDto, res: Response) {    // Find user by username or email
     const user = await this.prisma.user.findFirst({
       where: {
         OR: [
@@ -64,6 +63,11 @@ export class AuthService {
 
     if (!user) {
       throw new ForbiddenException('Credenciales incorrectas');
+    }
+
+    // Check if user is active
+    if (user.status !== 'ACTIVO') {
+      throw new ForbiddenException('Su cuenta está inactiva. Contacte al administrador.');
     }
 
     // Compare passwords

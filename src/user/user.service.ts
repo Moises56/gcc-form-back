@@ -10,7 +10,6 @@ export class UserService {
     private prisma: PrismaService,
     private databaseCleanupService: DatabaseCleanupService
   ) {}
-
   // Get all users
   async getAllUsers() {
     const users = await this.prisma.user.findMany({
@@ -22,13 +21,13 @@ export class UserService {
         employeeNumber: true,
         email: true,
         role: true,
+        status: true,
         createdAt: true,
         updatedAt: true,
       },
     });
     return users;
   }
-
   // Get user by ID
   async getUserById(id: string) {
     const user = await this.prisma.user.findUnique({
@@ -43,6 +42,7 @@ export class UserService {
         employeeNumber: true,
         email: true,
         role: true,
+        status: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -63,7 +63,30 @@ export class UserService {
       where: {
         id,
       },
-      data,
+      data,      select: {
+        id: true,
+        fullName: true,
+        username: true,
+        phoneNumber: true,
+        employeeNumber: true,
+        email: true,
+        role: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+    
+    return user;
+  }  // Update user status
+  async updateUserStatus(id: string, status: string) {
+    const user = await this.prisma.user.update({
+      where: {
+        id,
+      },
+      data: {
+        status,
+      },
       select: {
         id: true,
         fullName: true,
@@ -72,13 +95,16 @@ export class UserService {
         employeeNumber: true,
         email: true,
         role: true,
+        status: true,
         createdAt: true,
         updatedAt: true,
       },
     });
     
     return user;
-  }  // Delete user
+  }
+
+  // Delete user
   async deleteUser(id: string) {
     // Use database cleanup service to safely remove related logs and data
     await this.databaseCleanupService.cleanupUser(id);
