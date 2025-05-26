@@ -20,6 +20,7 @@ Content-Type: multipart/form-data
 **Request Body (form-data):**
 ```
 file: [Archivo de imagen]
+descripcion: [Descripción opcional de la imagen]
 ```
 
 **Ejemplo de uso con curl:**
@@ -27,7 +28,8 @@ file: [Archivo de imagen]
 curl -X POST "https://api.example.com/api/uploads/single/f47ac10b-58cc-4372-a567-0e02b2c3d479" \
   -H "Authorization: Bearer [tu-token-jwt]" \
   -H "Content-Type: multipart/form-data" \
-  -F "file=@/ruta/a/tu/imagen.jpg"
+  -F "file=@/ruta/a/tu/imagen.jpg" \
+  -F "descripcion=Fachada principal del edificio"
 ```
 
 **Respuesta Exitosa (200 OK):**
@@ -35,7 +37,7 @@ curl -X POST "https://api.example.com/api/uploads/single/f47ac10b-58cc-4372-a567
 {
   "id": "a5b9c8d7-e6f5-4321-b0c9-d8e7f6a5b4c3",
   "url": "/uploads/a5b9c8d7-e6f5-4321-b0c9-d8e7f6a5b4c3.jpg",
-  "descripcion": "",
+  "descripcion": "Fachada principal del edificio",
   "datosFormId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
   "createdAt": "2025-05-21T14:30:45.123Z"
 }
@@ -55,35 +57,101 @@ Content-Type: multipart/form-data
 - `formId`: El ID UUID del formulario al que se asociarán las imágenes
 
 **Request Body (form-data):**
+
+**Opción A - Descripciones individuales (recomendado):**
+```
+files: [Archivo de imagen 1]
+files: [Archivo de imagen 2]
+files: [Archivo de imagen 3]
+descripciones[0]: [Descripción específica para imagen 1]
+descripciones[1]: [Descripción específica para imagen 2]
+descripciones[2]: [Descripción específica para imagen 3]
+```
+
+**Opción B - Descripción general (todas las imágenes):**
 ```
 files: [Archivo de imagen 1]
 files: [Archivo de imagen 2]
 ...
+descripcion: [Descripción que se aplicará a todas las imágenes]
 ```
 
-**Ejemplo de uso con curl:**
+**Opción C - Mixta (descripciones individuales + fallback):**
+```
+files: [Archivo de imagen 1]
+files: [Archivo de imagen 2]
+files: [Archivo de imagen 3]
+descripciones[0]: [Descripción específica para imagen 1]
+descripciones[2]: [Descripción específica para imagen 3]
+descripcion: [Descripción fallback para imagen 2]
+```
+
+**Ejemplo de uso con curl (descripciones individuales):**
 ```bash
 curl -X POST "https://api.example.com/api/uploads/multiple/f47ac10b-58cc-4372-a567-0e02b2c3d479" \
   -H "Authorization: Bearer [tu-token-jwt]" \
   -H "Content-Type: multipart/form-data" \
-  -F "files=@/ruta/a/tu/imagen1.jpg" \
-  -F "files=@/ruta/a/tu/imagen2.jpg"
+  -F "files=@/ruta/a/fachada.jpg" \
+  -F "files=@/ruta/a/interior.jpg" \
+  -F "files=@/ruta/a/planos.jpg" \
+  -F "descripciones[0]=Fachada principal del edificio" \
+  -F "descripciones[1]=Vista interior del salón principal" \
+  -F "descripciones[2]=Planos arquitectónicos aprobados"
+```
+
+**Ejemplo de uso con curl (descripción general):**
+```bash
+curl -X POST "https://api.example.com/api/uploads/multiple/f47ac10b-58cc-4372-a567-0e02b2c3d479" \
+  -H "Authorization: Bearer [tu-token-jwt]" \
+  -H "Content-Type: multipart/form-data" \
+  -F "files=@/ruta/a/imagen1.jpg" \
+  -F "files=@/ruta/a/imagen2.jpg" \
+  -F "descripcion=Imágenes del proceso de construcción"
 ```
 
 **Respuesta Exitosa (200 OK):**
+
+**Con descripciones individuales:**
 ```json
 [
   {
     "id": "a5b9c8d7-e6f5-4321-b0c9-d8e7f6a5b4c3",
     "url": "/uploads/a5b9c8d7-e6f5-4321-b0c9-d8e7f6a5b4c3.jpg",
-    "descripcion": "",
+    "descripcion": "Fachada principal del edificio",
     "datosFormId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
     "createdAt": "2025-05-21T14:30:45.123Z"
   },
   {
     "id": "b4c3d2e1-f0a9-8765-g4h3-i2j1k0l9m8n7",
     "url": "/uploads/b4c3d2e1-f0a9-8765-g4h3-i2j1k0l9m8n7.jpg",
-    "descripcion": "",
+    "descripcion": "Vista interior del salón principal",
+    "datosFormId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+    "createdAt": "2025-05-21T14:30:46.789Z"
+  },
+  {
+    "id": "c2d1e0f9-a8b7-6543-h2g1-j0i9k8l7m6n5",
+    "url": "/uploads/c2d1e0f9-a8b7-6543-h2g1-j0i9k8l7m6n5.jpg",
+    "descripcion": "Planos arquitectónicos aprobados",
+    "datosFormId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+    "createdAt": "2025-05-21T14:30:47.456Z"
+  }
+]
+```
+
+**Con descripción general:**
+```json
+[
+  {
+    "id": "a5b9c8d7-e6f5-4321-b0c9-d8e7f6a5b4c3",
+    "url": "/uploads/a5b9c8d7-e6f5-4321-b0c9-d8e7f6a5b4c3.jpg",
+    "descripcion": "Imágenes del proceso de construcción",
+    "datosFormId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+    "createdAt": "2025-05-21T14:30:45.123Z"
+  },
+  {
+    "id": "b4c3d2e1-f0a9-8765-g4h3-i2j1k0l9m8n7",
+    "url": "/uploads/b4c3d2e1-f0a9-8765-g4h3-i2j1k0l9m8n7.jpg",
+    "descripcion": "Imágenes del proceso de construcción",
     "datosFormId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
     "createdAt": "2025-05-21T14:30:46.789Z"
   }
@@ -209,9 +277,12 @@ curl -X POST "https://api.example.com/api/datos-form/imagenes/multiple/f47ac10b-
 
 ```javascript
 // Ejemplo para subir una imagen individual
-async function uploadSingleImage(formId, imageFile, token) {
+async function uploadSingleImage(formId, imageFile, descripcion = '', token) {
   const formData = new FormData();
   formData.append('file', imageFile);
+  if (descripcion) {
+    formData.append('descripcion', descripcion);
+  }
 
   const response = await fetch(`https://api.example.com/api/uploads/single/${formId}`, {
     method: 'POST',
@@ -229,13 +300,18 @@ async function uploadSingleImage(formId, imageFile, token) {
 }
 
 // Ejemplo para subir múltiples imágenes
-async function uploadMultipleImages(formId, imageFiles, token) {
+async function uploadMultipleImages(formId, imageFiles, descripcion = '', token) {
   const formData = new FormData();
   
   // Añadir múltiples archivos al mismo campo 'files'
   imageFiles.forEach(file => {
     formData.append('files', file);
   });
+  
+  // Añadir descripción si se proporciona
+  if (descripcion) {
+    formData.append('descripcion', descripcion);
+  }
 
   const response = await fetch(`https://api.example.com/api/uploads/multiple/${formId}`, {
     method: 'POST',

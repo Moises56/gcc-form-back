@@ -15,24 +15,28 @@
 **Request Body:**
 ```json
 {
-  "fullName": "Nombre Completo",
-  "username": "usuario",
-  "email": "usuario@ejemplo.com",
-  "password": "contraseña",
-  "role": "USER" // Opcional, por defecto "USER"
+  "fullName": "Mou Grind",
+  "username": "mougrind",
+  "phoneNumber": "123456789",
+  "employeeNumber": "EMP001",
+  "email": "mougrind@amdc.hn",
+  "password": "@Asd.456@",
+  "role": "ADMIN"  // ADMIN, MODERADOR, OPERADOR
 }
 ```
 
 **Respuesta Exitosa (201):**
 ```json
 {
-  "id": "uuid-generado",
-  "fullName": "Nombre Completo",
-  "username": "usuario",
-  "email": "usuario@ejemplo.com",
-  "role": "USER",
-  "createdAt": "2025-05-21T12:34:56.789Z",
-  "updatedAt": "2025-05-21T12:34:56.789Z"
+	"id": "8c5c03e6-9263-4c59-93e8-a667a708a055",
+	"fullName": "Mou Grind",
+	"username": "mougrind",
+	"phoneNumber": "123456789",
+	"employeeNumber": "EMP001",
+	"email": "mougrind@amdc.hn",
+	"role": "ADMIN",
+	"createdAt": "2025-05-21T17:56:14.628Z",
+	"updatedAt": "2025-05-21T17:56:14.628Z"
 }
 ```
 
@@ -47,11 +51,11 @@
   ```
 - **409 Conflict:** El usuario ya existe
   ```json
-  {
-    "statusCode": 409,
-    "message": "El usuario con este email ya existe",
-    "error": "Conflict"
-  }
+    {
+        "message": "Credenciales ya están en uso",
+        "error": "Forbidden",
+        "statusCode": 403
+    }
   ```
 
 ### Inicio de Sesión
@@ -60,22 +64,26 @@
 **Request Body:**
 ```json
 {
-  "email": "usuario@ejemplo.com",
-  "password": "contraseña"
+    "usernameOrEmail": "mougrind",
+    "password": "@Asd.456@"
 }
 ```
 
 **Respuesta Exitosa (200):**
 ```json
 {
-  "access_token": "jwt-token",
-  "user": {
-    "id": "uuid-usuario",
-    "fullName": "Nombre Completo",
-    "username": "usuario",
-    "email": "usuario@ejemplo.com",
-    "role": "USER"
-  }
+    "user": {
+        "id": "8c5c03e6-9263-4c59-93e8-a667a708a055",
+        "fullName": "Mou Grind",
+        "username": "mougrind",
+        "phoneNumber": "123456789",
+        "employeeNumber": "EMP001",
+        "email": "mougrind@amdc.hn",
+        "role": "ADMIN",
+        "createdAt": "2025-05-21T17:56:14.628Z",
+        "updatedAt": "2025-05-21T17:56:14.628Z"
+    },
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4YzVjMDNlNi05MjYzLTRjNTktOTNlOC1hNjY3YTcwOGEwNTUiLCJ1c2VybmFtZSI6Im1vdWdyaW5kIiwiaWF0IjoxNzQ3ODUwMjMzLCJleHAiOjE3NDc5MzY2MzN9.Ow9EYJLkK1AUEzZHY8Th1OVwOokyAbJzTl4Agv7kgWk"
 }
 ```
 
@@ -83,10 +91,10 @@
 - **401 Unauthorized:** Credenciales inválidas
   ```json
   {
-    "statusCode": 401,
-    "message": "Credenciales inválidas",
-    "error": "Unauthorized"
-  }
+    "message": "Credenciales incorrectas",
+    "error": "Forbidden",
+    "statusCode": 403
+    }
   ```
 
 ### Cierre de Sesión

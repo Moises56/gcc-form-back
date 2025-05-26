@@ -2,7 +2,7 @@
 
 ## Descripción General
 
-Esta documentación proporciona la referencia completa de endpoints para la integración del frontend Angular 19 con la API de Formularios GCC.
+Esta documentación proporciona la referencia completa de endpoints para la integración del frontend Angular 19 y tailwind , con la API de Formularios GCC.
 
 ## Índice
 
@@ -300,7 +300,7 @@ Esta documentación proporciona la referencia completa de endpoints para la inte
 
 3. **Carga de Imágenes**: Implementar una directiva para previsualización de imágenes antes de subir.
 
-4. **Dashboard**: Utilizar bibliotecas compatibles con Angular como ngx-charts o Chart.js para visualizaciones.
+4. **Dashboard**: Utilizar bibliotecas compatibles con Angular como ngx-charts o Chart.js para visualizaciones., debe tener un sidebar y un menú de navegación. con iconos de tailwind. moderno y y responsive ya que se usara en movil y tablets y escritorios.
 
 5. **Permisos por Rol**: Implementar guards de ruta basados en roles (ADMIN, MODERADOR, OPERADOR).
 

@@ -27,9 +27,8 @@ if (!fs.existsSync(uploadDir)) {
           const newFilename = `${uniqueSuffix}.${fileExtension}`;
           cb(null, newFilename);
         },
-      }),
-      fileFilter: (_req, file, cb) => {
-        if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+      }),      fileFilter: (_req, file, cb) => {
+        if (!file.originalname.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
           return cb(new Error('Solo se permiten archivos de imagen!'), false);
         }
         cb(null, true);

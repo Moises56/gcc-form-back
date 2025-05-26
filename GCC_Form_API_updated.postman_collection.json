@@ -21,7 +21,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"fullName\": \"Administrador\",\n    \"username\": \"admin\",\n    \"phoneNumber\": \"123456789\",\n    \"employeeNumber\": \"EMP001\",\n    \"email\": \"admin@example.com\",\n    \"password\": \"password123\",\n    \"role\": \"ADMIN\"\n}"
+							"raw": "{\n    \"fullName\": \"Administrador\",\n    \"username\": \"mougrind\",\n    \"phoneNumber\": \"123456789\",\n    \"employeeNumber\": \"EMP001\",\n    \"email\": \"mougrind@amdc.hn\",\n    \"password\": \"@Asd.456@\",\n    \"role\": \"ADMIN\"\n}"
 						},
 						"url": {
 							"raw": "http://localhost:3000/api/auth/register",
@@ -52,7 +52,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"usernameOrEmail\": \"admin@example.com\",\n    \"password\": \"password123\"\n}"
+							"raw": "{\n    \"usernameOrEmail\": \"mougrind\",\n    \"password\": \"@Asd.456@\"\n}"
 						},
 						"url": {
 							"raw": "http://localhost:3000/api/auth/login",
@@ -400,8 +400,7 @@
 						"description": "Obtiene un formulario específico por su ID"
 					},
 					"response": []
-				},
-				{
+				},				{
 					"name": "Actualizar Formulario",
 					"request": {
 						"method": "PUT",
@@ -434,6 +433,36 @@
 							]
 						},
 						"description": "Actualiza un formulario existente"
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar Estado del Formulario",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3000/api/datos-form/{{formId}}/estado/INACTIVO",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"datos-form",
+								"{{formId}}",
+								"estado",
+								"INACTIVO"
+							]
+						},
+						"description": "Actualiza solo el estado del formulario (ACTIVO o INACTIVO)"
 					},
 					"response": []
 				},
@@ -675,8 +704,7 @@
 		},
 		{
 			"name": "Imágenes - Uploads",
-			"item": [
-				{
+			"item": [				{
 					"name": "Subir Imagen (uploads)",
 					"request": {
 						"method": "POST",
@@ -694,6 +722,11 @@
 									"key": "file",
 									"type": "file",
 									"src": []
+								},
+								{
+									"key": "descripcion",
+									"value": "Fachada principal del edificio",
+									"type": "text"
 								}
 							]
 						},
@@ -714,8 +747,7 @@
 						"description": "Sube una imagen a un formulario específico (usando el endpoint uploads)"
 					},
 					"response": []
-				},
-				{
+				},				{
 					"name": "Subir Múltiples Imágenes (uploads)",
 					"request": {
 						"method": "POST",
@@ -738,6 +770,11 @@
 									"key": "files",
 									"type": "file",
 									"src": []
+								},
+								{
+									"key": "descripcion",
+									"value": "Imágenes del proceso de construcción",
+									"type": "text"
 								}
 							]
 						},
@@ -755,7 +792,7 @@
 								"{{formId}}"
 							]
 						},
-						"description": "Sube múltiples imágenes a un formulario específico (usando el endpoint uploads)"
+						"description": "Sube múltiples imágenes a un formulario específico (usando el endpoint uploads) con descripción opcional"
 					},
 					"response": []
 				},

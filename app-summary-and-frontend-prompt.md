@@ -1,5 +1,6 @@
 # Resumen de la Aplicación GCC-Form
 
+
 ## Descripción General
 GCC-Form es una aplicación de inspección y gestión de formularios para obras de construcción. Permite a los usuarios registrar datos de inspecciones, cargar imágenes, administrar permisos y generar estadísticas sobre las inspecciones realizadas. La aplicación gestiona información sobre propietarios, direcciones de obra, sectores catastrales y tipos de infracciones.
 
@@ -153,7 +154,7 @@ Estoy desarrollando una aplicación de inspección de obras llamada GCC-Form. Ya
    - Módulo de logs del sistema
 
 5. **Funcionalidades Avanzadas**:
-   - Exportación de datos a PDF/Excel
+   - Exportación de datos a PDF/word/Excel
    - Filtros avanzados para búsquedas
    - Visualización de imágenes con zoom
    - Mapa para visualizar ubicaciones

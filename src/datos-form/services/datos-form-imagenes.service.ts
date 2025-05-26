@@ -19,19 +19,19 @@ export class DatosFormImagenesService {
     // Check if form exists
     const form = await this.prisma.datosForm.findUnique({
       where: { id: formId }
-    });
-
-    if (!form) {
+    });    if (!form) {
       throw new NotFoundException(`Formulario con ID ${formId} no encontrado`);
     }
 
-    // Check if form already has 6 images - get count from database
+    // Check if form already has 10 images - get count from database
     const imageCount = await this.prisma.imagenForm.count({
-      where: { datosFormId: formId }
+      where: { datosFormId: formId },
     });
 
-    if (imageCount >= 6) {
-      throw new NotFoundException('El formulario ya tiene el máximo de 6 imágenes permitidas');
+    if (imageCount >= 10) {
+      throw new NotFoundException(
+        'El formulario ya tiene el máximo de 10 imágenes permitidas',
+      );
     }
 
     // Add image to form

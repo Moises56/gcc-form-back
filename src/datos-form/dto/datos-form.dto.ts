@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsBoolean, IsDate, IsNumber, IsUUID } from 'class-validator';
+import { IsString, IsOptional, IsBoolean, IsDate, IsNumber, IsUUID, IsNotEmpty } from 'class-validator';
 import { Type } from 'class-transformer';
 import { PartialType } from '@nestjs/mapped-types';
 
@@ -212,6 +212,13 @@ export class CreateImagenDto {
   @IsOptional()
   @IsString()
   descripcion?: string;
+}
+
+// DTO for updating image description
+export class UpdateImagenDescriptionDto {
+  @IsString()
+  @IsNotEmpty()
+  descripcion: string;
 }
 
 // Pagination metadata response

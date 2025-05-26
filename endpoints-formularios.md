@@ -365,6 +365,167 @@ export class EliminarFormularioComponent implements OnInit {
 }
 ```
 
+### 5. Servicio para Subir Imágenes con Descripción
+
+```typescript
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../environments/environment';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ImageUploadService {
+  private apiUrl = environment.apiUrl;
+
+  constructor(private http: HttpClient) {}
+
+  // Subir una imagen individual con descripción
+  uploadSingleImage(formId: string, file: File, descripcion?: string): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    if (descripcion) {
+      formData.append('descripcion', descripcion);
+    }
+
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.post(`${this.apiUrl}/uploads/single/${formId}`, formData, { headers });
+  }
+
+  // Subir múltiples imágenes con descripción
+  uploadMultipleImages(formId: string, files: File[], descripcion?: string): Observable<any> {
+    const formData = new FormData();
+    
+    files.forEach(file => {
+      formData.append('files', file);
+    });
+    
+    if (descripcion) {
+      formData.append('descripcion', descripcion);
+    }
+
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.post(`${this.apiUrl}/uploads/multiple/${formId}`, formData, { headers });
+  }
+
+  // Eliminar imagen
+  deleteImage(imageId: string): Observable<any> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.delete(`${this.apiUrl}/uploads/image/${imageId}`, { headers });
+  }
+}
+```
+
+### 6. Componente para Subir Imágenes
+
+```typescript
+import { Component } from '@angular/core';
+import { ImageUploadService } from '../services/image-upload.service';
+
+@Component({
+  selector: 'app-image-upload',
+  templateUrl: './image-upload.component.html',
+  styleUrls: ['./image-upload.component.scss']
+})
+export class ImageUploadComponent {
+  selectedFiles: File[] = [];
+  descripcion: string = '';
+  uploading: boolean = false;
+  mensaje: string = '';
+  error: string = '';
+
+  constructor(private imageUploadService: ImageUploadService) {}
+
+  onFileSelected(event: any) {
+    this.selectedFiles = Array.from(event.target.files);
+  }
+
+  uploadImages(formId: string) {
+    if (this.selectedFiles.length === 0) {
+      this.error = 'Por favor seleccione al menos una imagen';
+      return;
+    }
+
+    this.uploading = true;
+    this.mensaje = '';
+    this.error = '';
+
+    if (this.selectedFiles.length === 1) {
+      // Subir una sola imagen
+      this.imageUploadService.uploadSingleImage(formId, this.selectedFiles[0], this.descripcion)
+        .subscribe({
+          next: (response) => {
+            this.mensaje = 'Imagen subida exitosamente';
+            this.uploading = false;
+            this.resetForm();
+          },
+          error: (error) => {
+            this.error = 'Error al subir la imagen: ' + error.message;
+            this.uploading = false;
+          }
+        });
+    } else {
+      // Subir múltiples imágenes
+      this.imageUploadService.uploadMultipleImages(formId, this.selectedFiles, this.descripcion)
+        .subscribe({
+          next: (response) => {
+            this.mensaje = `${response.length} imágenes subidas exitosamente`;
+            this.uploading = false;
+            this.resetForm();
+          },
+          error: (error) => {
+            this.error = 'Error al subir las imágenes: ' + error.message;
+            this.uploading = false;
+          }
+        });
+    }
+  }
+
+  resetForm() {
+    this.selectedFiles = [];
+    this.descripcion = '';
+  }
+}
+```
+
+## Endpoints de Subida de Imágenes
+
+### Subir Imagen Individual
+- **URL**: `POST /api/uploads/single/:formId`
+- **Parámetros**: `formId` (UUID del formulario)
+- **Body**: `multipart/form-data`
+  - `file`: Archivo de imagen
+  - `descripcion`: Descripción opcional de la imagen
+- **Roles**: ADMIN, MODERADOR, OPERADOR
+
+### Subir Múltiples Imágenes
+- **URL**: `POST /api/uploads/multiple/:formId`
+- **Parámetros**: `formId` (UUID del formulario)
+- **Body**: `multipart/form-data`
+  - `files`: Archivos de imagen (máximo 6)
+  - `descripcion`: Descripción opcional que se aplicará a todas las imágenes
+- **Roles**: ADMIN, MODERADOR, OPERADOR
+
+### Eliminar Imagen
+- **URL**: `DELETE /api/uploads/image/:imageId`
+- **Parámetros**: `imageId` (UUID de la imagen)
+- **Roles**: ADMIN, MODERADOR
+
 ## Manejo de Errores Comunes
 
 Al trabajar con estos endpoints, puedes encontrar los siguientes errores:
