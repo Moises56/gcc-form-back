@@ -13,21 +13,32 @@ export class AuthService {
     private jwt: JwtService,
     private config: ConfigService,
   ) {}
-
   async register(dto: RegisterDto) {
-    // Check if user exists
-    const userExists = await this.prisma.user.findFirst({
-      where: {
-        OR: [
-          { email: dto.email },
-          { username: dto.username },
-          ...(dto.employeeNumber ? [{ employeeNumber: dto.employeeNumber }] : []),
-        ],
-      },
+    // Check if user exists with more specific error messages
+    const existingUserByEmail = await this.prisma.user.findUnique({
+      where: { email: dto.email },
     });
 
-    if (userExists) {
-      throw new ForbiddenException('Credenciales ya están en uso');
+    if (existingUserByEmail) {
+      throw new ForbiddenException(`El email ${dto.email} ya está en uso`);
+    }
+
+    const existingUserByUsername = await this.prisma.user.findUnique({
+      where: { username: dto.username },
+    });
+
+    if (existingUserByUsername) {
+      throw new ForbiddenException(`El nombre de usuario ${dto.username} ya está en uso`);
+    }
+
+    if (dto.employeeNumber) {
+      const existingUserByEmployeeNumber = await this.prisma.user.findUnique({
+        where: { employeeNumber: dto.employeeNumber },
+      });
+
+      if (existingUserByEmployeeNumber) {
+        throw new ForbiddenException(`El número de empleado ${dto.employeeNumber} ya está en uso`);
+      }
     }
 
     // Hash password
