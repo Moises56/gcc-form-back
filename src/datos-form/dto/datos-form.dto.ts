@@ -195,11 +195,35 @@ export class CreateDatosFormDto {
   @IsOptional()
   @IsString()
   observaciones?: string;
-
   // Información de recibo
   @IsOptional()
   @IsString()
   reciboNombreFirma?: string;
+  // Información adicional del formulario
+  // Coordenadas para marcar puntos en el mapa
+  @IsOptional()
+  @IsNumber()
+  latitud?: number;
+
+  @IsOptional()
+  @IsNumber()
+  longitud?: number;
+
+  @IsOptional()
+  @IsString()
+  antecedente1?: string;
+
+  @IsOptional()
+  @IsString()
+  antecedente2?: string;
+
+  @IsOptional()
+  @IsString()
+  antecedente3?: string;
+
+  @IsOptional()
+  @IsString()
+  Articulo1?: string;
 }
 
 export class UpdateDatosFormDto extends PartialType(CreateDatosFormDto) {}

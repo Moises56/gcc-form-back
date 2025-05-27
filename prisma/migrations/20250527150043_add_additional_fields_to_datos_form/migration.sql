@@ -1,0 +1,23 @@
+BEGIN TRY
+
+BEGIN TRAN;
+
+-- AlterTable
+ALTER TABLE [dbo].[DatosForm] ADD [Articulo1] NVARCHAR(1000),
+[antecedente1] NVARCHAR(1000),
+[antecedente2] NVARCHAR(1000),
+[antecedente3] NVARCHAR(1000),
+[ubicacion] NVARCHAR(1000);
+
+COMMIT TRAN;
+
+END TRY
+BEGIN CATCH
+
+IF @@TRANCOUNT > 0
+BEGIN
+    ROLLBACK TRAN;
+END;
+THROW
+
+END CATCH
