@@ -18,7 +18,11 @@ async function bootstrap() {
 
   // Enable CORS
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://localhost:4200'], // Add your frontend domains
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:4200',
+      'https://gcc-form.amdc.hn',
+    ], // Add your frontend domains
     credentials: true,
   });
 
