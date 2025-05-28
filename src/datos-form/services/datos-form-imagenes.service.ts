@@ -11,19 +11,20 @@ export class DatosFormImagenesService {
     private loggingService: LoggingService,
     private uploadsService: UploadsService,
   ) {}
-    async addImageToForm(
+
+  async addImageToForm(
     formId: string,
     imageData: CreateImagenDto,
     userId: string,
   ) {
-    // Check if form exists
     const form = await this.prisma.datosForm.findUnique({
-      where: { id: formId }
-    });    if (!form) {
+      where: { id: formId },
+    });
+
+    if (!form) {
       throw new NotFoundException(`Formulario con ID ${formId} no encontrado`);
     }
 
-    // Check if form already has 10 images - get count from database
     const imageCount = await this.prisma.imagenForm.count({
       where: { datosFormId: formId },
     });
@@ -34,7 +35,6 @@ export class DatosFormImagenesService {
       );
     }
 
-    // Add image to form
     const newImage = await this.prisma.imagenForm.create({
       data: {
         url: imageData.url,
@@ -45,7 +45,6 @@ export class DatosFormImagenesService {
       },
     });
 
-    // Log the action
     await this.loggingService.createLog({
       userId,
       accion: 'UPDATE',
@@ -56,9 +55,8 @@ export class DatosFormImagenesService {
 
     return newImage;
   }
-  // Delete image from form
+
   async deleteImage(imageId: string, userId: string) {
-    // Check if image exists
     const image = await this.prisma.imagenForm.findUnique({
       where: { id: imageId },
       include: { datosForm: true },
@@ -68,20 +66,23 @@ export class DatosFormImagenesService {
       throw new NotFoundException(`Imagen con ID ${imageId} no encontrada`);
     }
 
-    // Get filename from URL
     const filename = image.url.split('/').pop();
-    
-    // Delete the image file if it exists
+
     if (filename) {
-      this.uploadsService.deleteFile(filename);
+      try {
+        const fileDeleted = await this.uploadsService.deleteFile(filename);
+        if (!fileDeleted) {
+          console.warn(`Could not delete physical file: ${filename}`);
+        }
+      } catch (error) {
+        console.error(`Error deleting physical file ${filename}:`, error);
+      }
     }
 
-    // Delete the image record
     await this.prisma.imagenForm.delete({
       where: { id: imageId },
     });
 
-    // Log the action
     await this.loggingService.createLog({
       userId,
       accion: 'DELETE',
@@ -91,11 +92,9 @@ export class DatosFormImagenesService {
     });
 
     return { message: 'Imagen eliminada exitosamente' };
-  }  // Get all images for a form
-    async getFormImages(
-    formId: string,
-  ) {
-    // Check if form exists
+  }
+
+  async getFormImages(formId: string) {
     const form = await this.prisma.datosForm.findUnique({
       where: { id: formId },
     });
@@ -104,18 +103,18 @@ export class DatosFormImagenesService {
       throw new NotFoundException(`Formulario con ID ${formId} no encontrado`);
     }
 
-    // Get all images directly
     const images = await this.prisma.imagenForm.findMany({
       where: { datosFormId: formId },
     });
 
     return images;
-  }  async updateImageDescription(
+  }
+
+  async updateImageDescription(
     imageId: string,
     description: string,
     userId: string,
   ) {
-    // Check if image exists
     const image = await this.prisma.imagenForm.findUnique({
       where: { id: imageId },
       include: { datosForm: true },
@@ -125,13 +124,11 @@ export class DatosFormImagenesService {
       throw new NotFoundException(`Imagen con ID ${imageId} no encontrada`);
     }
 
-    // Update the image description
     const updatedImage = await this.prisma.imagenForm.update({
       where: { id: imageId },
       data: { descripcion: description },
     });
 
-    // Log the action
     await this.loggingService.createLog({
       userId,
       accion: 'UPDATE',

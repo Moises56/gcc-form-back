@@ -145,6 +145,10 @@ model DatosForm {
   antecedente2  String?
   antecedente3  String?
   Articulo1     String?
+  
+  // Nuevos campos adicionales
+  materialesConstruccion String?
+  subtitulo             String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

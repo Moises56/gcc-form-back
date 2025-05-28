@@ -29,11 +29,10 @@ export class UploadsService {
       },
     });
   }
-
   // Configure multer file filter for images
   getFileFilter() {
     return (_req, file, cb) => {
-      if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+      if (!file.originalname.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
         return cb(new Error('Solo se permiten archivos de imagen!'), false);
       }
       cb(null, true);
@@ -44,18 +43,20 @@ export class UploadsService {
   getFileUrl(filename: string): string {
     return `/uploads/${filename}`;
   }
-
   // Delete a file
-  deleteFile(filename: string): boolean {
+  async deleteFile(filename: string): Promise<boolean> {
     try {
       const filePath = join(this.uploadDir, filename);
       if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
+        await fs.promises.unlink(filePath);
+        console.log(`File deleted successfully: ${filename}`);
         return true;
+      } else {
+        console.warn(`File not found: ${filename}`);
+        return false;
       }
-      return false;
     } catch (error) {
-      console.error('Error deleting file:', error);
+      console.error(`Error deleting file ${filename}:`, error);
       return false;
     }
   }

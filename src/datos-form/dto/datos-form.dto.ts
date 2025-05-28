@@ -224,6 +224,15 @@ export class CreateDatosFormDto {
   @IsOptional()
   @IsString()
   Articulo1?: string;
+  
+  // Nuevos campos adicionales
+  @IsOptional()
+  @IsString()
+  materialesConstruccion?: string;
+
+  @IsOptional()
+  @IsString()
+  subtitulo?: string;
 }
 
 export class UpdateDatosFormDto extends PartialType(CreateDatosFormDto) {}
