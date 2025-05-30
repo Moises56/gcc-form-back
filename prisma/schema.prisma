@@ -146,9 +146,18 @@ model DatosForm {
   antecedente3  String?
   Articulo1     String?
   
-  // Nuevos campos adicionales
+  // Campos agregados anteriormente
   materialesConstruccion String?
   subtitulo             String?
+  
+  // Nuevos campos agregados
+  tipoObra           String?
+  descripcionGeneral String?
+  notaUrgente        String?
+  zonificacion       String?
+  usoEspecifico      String?
+  descripcionAvance  String?
+  recomendacion      String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

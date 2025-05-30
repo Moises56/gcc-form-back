@@ -233,6 +233,35 @@ export class CreateDatosFormDto {
   @IsOptional()
   @IsString()
   subtitulo?: string;
+
+  // Nuevos campos de obra - Agregados con migración 20250529173901
+  @IsOptional()
+  @IsString()
+  tipoObra?: string;
+
+  @IsOptional()
+  @IsString()
+  descripcionGeneral?: string;
+
+  @IsOptional()
+  @IsString()
+  notaUrgente?: string;
+
+  @IsOptional()
+  @IsString()
+  zonificacion?: string;
+
+  @IsOptional()
+  @IsString()
+  usoEspecifico?: string;
+
+  @IsOptional()
+  @IsString()
+  descripcionAvance?: string;
+
+  @IsOptional()
+  @IsString()
+  recomendacion?: string;
 }
 
 export class UpdateDatosFormDto extends PartialType(CreateDatosFormDto) {}
