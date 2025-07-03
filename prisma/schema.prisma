@@ -132,7 +132,7 @@ model DatosForm {
   numeroLicencia    String?
   fechaAutorizacion DateTime?
   fechaVencimiento  DateTime?
-  observaciones     String?
+  observaciones     String? @db.NVarChar(Max)
 
   // Información de recibo
   reciboNombreFirma String?
@@ -144,7 +144,7 @@ model DatosForm {
   antecedente1  String?
   antecedente2  String?
   antecedente3  String?
-  Articulo1     String?
+  Articulo1     String? @db.NVarChar(Max)
   
   // Campos agregados anteriormente
   materialesConstruccion String?
@@ -152,12 +152,12 @@ model DatosForm {
   
   // Nuevos campos agregados
   tipoObra           String?
-  descripcionGeneral String?
-  notaUrgente        String?
+  descripcionGeneral String? @db.NVarChar(Max)
+  notaUrgente        String? @db.NVarChar(Max)
   zonificacion       String?
   usoEspecifico      String?
-  descripcionAvance  String?
-  recomendacion      String?
+  descripcionAvance  String? @db.NVarChar(Max)
+  recomendacion      String? @db.NVarChar(Max)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
