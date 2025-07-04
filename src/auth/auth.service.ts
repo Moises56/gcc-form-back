@@ -1,9 +1,9 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
-import { RegisterDto, LoginDto } from './dto/auth.dto';
+import { RegisterDto, LoginDto, UpdateProfileDto, ChangePasswordDto } from './dto/auth.dto';
 import { Response } from 'express';
 
 @Injectable()
@@ -147,5 +147,80 @@ export class AuthService {
     return {
       accessToken,
     };
+  }
+
+  // Métodos para autogestión de perfil
+  async updateProfile(userId: string, dto: UpdateProfileDto) {
+    // Verificar si el usuario existe
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new ForbiddenException('Usuario no encontrado');
+    }
+
+    // Verificar si el email ya está en uso por otro usuario
+    if (dto.email && dto.email !== user.email) {
+      const existingUser = await this.prisma.user.findFirst({
+        where: {
+          email: dto.email,
+          NOT: { id: userId },
+        },
+      });
+
+      if (existingUser) {
+        throw new BadRequestException(`El email ${dto.email} ya está en uso por otro usuario`);
+      }
+    }
+
+    // Actualizar el usuario
+    const updatedUser = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...(dto.fullName && { fullName: dto.fullName }),
+        ...(dto.phoneNumber && { phoneNumber: dto.phoneNumber }),
+        ...(dto.email && { email: dto.email }),
+      },
+    });
+
+    // Retornar sin la contraseña
+    const { password, ...result } = updatedUser;
+    return result;
+  }
+
+  async changePassword(userId: string, dto: ChangePasswordDto) {
+    // Verificar si el usuario existe
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new ForbiddenException('Usuario no encontrado');
+    }
+
+    // Verificar la contraseña actual
+    const passwordMatches = await bcrypt.compare(dto.currentPassword, user.password);
+    
+    if (!passwordMatches) {
+      throw new BadRequestException('La contraseña actual es incorrecta');
+    }
+
+    // Verificar que la nueva contraseña sea diferente
+    const samePassword = await bcrypt.compare(dto.newPassword, user.password);
+    if (samePassword) {
+      throw new BadRequestException('La nueva contraseña debe ser diferente a la actual');
+    }
+
+    // Hash de la nueva contraseña
+    const hashedNewPassword = await this.hashPassword(dto.newPassword);
+
+    // Actualizar la contraseña
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedNewPassword },
+    });
+
+    return { message: 'Contraseña actualizada exitosamente' };
   }
 }

@@ -42,3 +42,30 @@ export class LoginDto {
   @IsString()
   password: string;
 }
+
+// DTO para actualizar perfil propio
+export class UpdateProfileDto {
+  @IsOptional()
+  @IsString()
+  fullName?: string;
+
+  @IsOptional()
+  @IsString()
+  phoneNumber?: string;
+
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+}
+
+// DTO para cambiar contraseña propia
+export class ChangePasswordDto {
+  @IsNotEmpty()
+  @IsString()
+  currentPassword: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(6)
+  newPassword: string;
+}
